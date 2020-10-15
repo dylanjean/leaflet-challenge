@@ -59,10 +59,25 @@
         accessToken: API_KEY
     }).addTo(myMap);
 
+    function getColor(d) {
+        return d > 90
+          ? "rgb(255, 0, 0)"
+          : d > 70
+          ? "rgb(255, 102, 0)"
+          : d > 50
+          ? "rgb(255,153,51)"
+          : d > 30
+          ? "rgb(255,204,0)"
+          : d > 10
+          ? "rgb(204,255,102)"
+          : "rgb(64, 255, 0)";
+    }
+      
+
     function createCircleMarker( feature, latlng ){
         // Change the values of these options to change the symbol's appearance
         var mag = feature.properties.mag
-        var sig = feature.properties.sig
+        var sig = feature.geometry.coordinates[2]
         var sColor = 'red'
         if (sig > 90){
             sColor = 'rgb(255, 0, 0)'
@@ -93,3 +108,19 @@ d3.json(url, function (data){
         pointToLayer: createCircleMarker // Call the function createCircleMarker to create the symbol for this layer
       }).addTo(myMap)
 })
+
+var legend = L.control({position: 'bottomleft'});
+    legend.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'info legend');
+    labels = ['<strong>Depth</strong>'],
+    categories = ['-10','10','30','50','70','90'];
+    for (var i = 0; i < categories.length; i++) {
+            div.innerHTML +=
+            labels.push(
+                '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
+                + categories[i] + (categories[i + 1] ? "&ndash;" + categories[i + 1] + "<br>" : "+"));
+        }
+        div.innerHTML = labels.join('<br>');
+    return div;
+    };
+legend.addTo(myMap);
